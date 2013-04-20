@@ -115,7 +115,7 @@ function _exec(s,f) {
 }
 
 function _then(f) {
-	this._q.push(f);
+	this._q.unshift(f);
 	return this;
 }
 
