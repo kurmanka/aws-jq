@@ -15,32 +15,34 @@ function select(s) {
 }
 
 function get_instance_details(i,cb) {
-//	console.log('get_instance_details('+i+'): start');
+//	this.log('get_instance_details('+i+'): start');
     var request = ec2.describeInstances( { InstanceIds: [i] } );
 
     // register callbacks on request to retrieve response data
     request.on('success', function(response) {
-//		console.log('get_instance_details: success');
+//		this.log('get_instance_details: success');
         var details = response.data.Reservations[0].Instances[0];
-        //console.log(details);
+        //this.log(details);
         cb(details);
     });
 
     // register callbacks on request to retrieve response data
     request.on('failure', function(response) {
-//		console.log('get_instance_details: failure');
+//		this.log('get_instance_details: failure');
     });
 
     request.send();
 }
 
+
+// wait until instance id is in a given state
 var wait = 2000; // milliseconds
-// wait until instance id is in state state
 function untilInstanceState(id,state,done){
+	var self = this;
     var recursive = function () {
-        console.log("... waiting for " + state);
+        self.log("... waiting for " + state);
         get_instance_details(id, function(d) {
-        	console.log( d.State.Name );
+        	self.log( d.State.Name );
             if(d.State.Name==state) {
                 done(null,d);
             } else {
@@ -51,8 +53,9 @@ function untilInstanceState(id,state,done){
     recursive();
 }
 
+// start instance
 function start(s,f) {
-//	console.log( 'start(): start' );
+//	this.log( 'start(): start' );
 	if (!this._) {
 		// no object to do start on
 		f('no object to run on');
@@ -60,18 +63,21 @@ function start(s,f) {
 	// XXX check that this._ points to an instance
 	// ... selector( this._ );
 	var iid = this._;
+	var self = this;
+
 	ec2.startInstances({InstanceIds:[iid]}, function(err,data) {
-		if (err) { console.log( 'startInstances error: ' + err ); f(err); }
+		if (err) { self.log( 'startInstances error: ' + err ); f(err); }
 		// wait 
-		untilInstanceState( iid, 'running', function(e,d) {
+		self.untilInstanceState( iid, 'running', function(e,d) {
 			s();
 		})
 	});
-	console.log( 'start(): startInstances() request sent' );
+	this.log( 'start(): startInstances() request sent' );
 }
 
+// stop instance
 function stop(s,f) {
-//	console.log( 'stop(): start' );
+//	this.log( 'stop(): start' );
 	if (!this._) {
 		// no object to do start on
 		f('no object to run on');
@@ -79,14 +85,16 @@ function stop(s,f) {
 	// XXX check that this._ points to an instance
 	// 
 	var iid = this._;
+	var self = this;
+
 	ec2.stopInstances({InstanceIds:[iid]}, function(err,data) {
-		if (err) { console.log( 'stopInstances error: ' + err ); f(err); }
+		if (err) { self.log( 'stopInstances error: ' + err ); f(err); }
 		// wait 
-		untilInstanceState( iid, 'stopped', function(e,d) {
+		self.untilInstanceState( iid, 'stopped', function(e,d) {
 			s();
 		})
 	});
-	console.log( 'stop(): stopInstances() request sent' );
+	this.log( 'stop(): stopInstances() request sent' );
 }
 
 function _start() {
@@ -118,7 +126,8 @@ function _exec(s,f) {
 				},
 				function(){ // failure
 					self._exec_running = false;
-					f();
+					if(f) f();
+					else self.log( 'failure' );
 				}
 				);
 	} else {
@@ -139,18 +148,27 @@ function _then(f) {
 	return this.exec();
 }
 
-function aws( selector ) {
+function aws(selector) {
 	var o = {
 		start: _start,
 		stop:  _stop,
 		exec:  _exec,
 		then:  _then,
+		log:   function(){}, // no debugging
+		get_instance_details: get_instance_details,
+		untilInstanceState:   untilInstanceState,
 		_: selector,
 		_q: []
 	};
-
 	return o;
 }
 
-// export aws function
-exports.aws = aws;
+function aws_debug(selector) {
+	var o = aws(selector);
+	o.log = console.log;
+	return o;
+}
+
+// export aws functions
+exports.aws       = aws;
+exports.aws_debug = aws_debug;
