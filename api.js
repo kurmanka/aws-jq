@@ -35,11 +35,12 @@ function get_instance_details(i,cb) {
 }
 
 var wait = 2000; // milliseconds
+// wait until instance id is in state state
 function untilInstanceState(id,state,done){
-    // wait until t is running
     var recursive = function () {
-        console.log(".");
+        console.log("... waiting for " + state);
         get_instance_details(id, function(d) {
+        	console.log( d.State.Name );
             if(d.State.Name==state) {
                 done(null,d);
             } else {
@@ -89,18 +90,15 @@ function stop(s,f) {
 }
 
 function _start() {
-	this.then( start );
-	return this;
+	return this.then( start );
 }
 
 function _stop() {
-	this.then( stop );
-	return this;
+	return this.then( stop );
 }
 
-// queue of actions
+// run the queue of actions
 function _exec(s,f) {
-	console.log( 'exec: start' );
 	var op = this._q.pop();
 	var self = this;
 	if( op ) {
@@ -108,15 +106,14 @@ function _exec(s,f) {
 				function(){self.exec(s,f);},
 				f);
 	} else {
-		s();
+		if(s) {s();}
 	}
-	console.log( 'exec: done' );
 	return this;
 }
 
 function _then(f) {
 	this._q.unshift(f);
-	return this;
+	return this.exec();
 }
 
 function $( selector ) {
