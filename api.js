@@ -5,9 +5,9 @@
 // https://github.com/aws/aws-sdk-js
 // (c) 2013-04-20, Ivan Kurmanov
 
-var aws = require('aws-sdk');
-aws.config.update({region: 'us-east-1'});
-var ec2 = new aws.EC2;
+var AWS = require('aws-sdk');
+AWS.config.update({region: 'us-east-1'});
+var ec2 = new AWS.EC2;
 
 function select(s) {
 	// this could and should verify the selector string,
@@ -52,7 +52,7 @@ function untilInstanceState(id,state,done){
 }
 
 function start(s,f) {
-	console.log( 'start(): start' );
+//	console.log( 'start(): start' );
 	if (!this._) {
 		// no object to do start on
 		f('no object to run on');
@@ -71,7 +71,7 @@ function start(s,f) {
 }
 
 function stop(s,f) {
-	console.log( 'stop(): start' );
+//	console.log( 'stop(): start' );
 	if (!this._) {
 		// no object to do start on
 		f('no object to run on');
@@ -97,16 +97,39 @@ function _stop() {
 	return this.then( stop );
 }
 
-// run the queue of actions
+
+// run the queue-loop of actions
 function _exec(s,f) {
+	// short-circuit if the loop is already running
+	if( this._exec_running ) { return this; }
+	// get next action
 	var op = this._q.pop();
+	// save this for future use
 	var self = this;
+	// raise the semaphor
+	this._exec_running = true;
+
+	// next action is defined?
 	if( op ) {
 		op.call(this,
-				function(){self.exec(s,f);},
-				f);
+				function(){ // success
+					self._exec_running = false;
+					self.exec(s,f);
+				},
+				function(){ // failure
+					self._exec_running = false;
+					f();
+				}
+				);
 	} else {
 		if(s) {s();}
+		this._exec_running = false;
+
+		// I think I should check for another item in _q here. 
+		// for example, the s() success handler could have added 
+		// another item, but it wouldn't run immediately, 
+		// since the _exec_running was true.
+		if (this._q.length) {return this._exec();}
 	}
 	return this;
 }
@@ -116,7 +139,7 @@ function _then(f) {
 	return this.exec();
 }
 
-function $( selector ) {
+function aws( selector ) {
 	var o = {
 		start: _start,
 		stop:  _stop,
@@ -129,5 +152,5 @@ function $( selector ) {
 	return o;
 }
 
-// export $ function
-exports.$ = $;
+// export aws function
+exports.aws = aws;
