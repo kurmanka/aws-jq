@@ -15,12 +15,12 @@ function select(s) {
 }
 
 function get_instance_details(i,cb) {
-	console.log('get_instance_details('+i+'): start');
+//	console.log('get_instance_details('+i+'): start');
     var request = ec2.describeInstances( { InstanceIds: [i] } );
 
     // register callbacks on request to retrieve response data
     request.on('success', function(response) {
-		console.log('get_instance_details: success');
+//		console.log('get_instance_details: success');
         var details = response.data.Reservations[0].Instances[0];
         //console.log(details);
         cb(details);
@@ -89,12 +89,12 @@ function stop(s,f) {
 }
 
 function _start() {
-	this._q.unshift( start );
+	this.then( start );
 	return this;
 }
 
 function _stop() {
-	this._q.unshift( stop );
+	this.then( stop );
 	return this;
 }
 
