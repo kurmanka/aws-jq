@@ -1,7 +1,7 @@
 aws-jq
 ======
 
-This is an very early-stage experimental jquery-like library-wrapper
+This is a very early-stage experimental jquery-like library-wrapper
 around AWS SDK for node.js:
  - http://aws.amazon.com/sdkfornodejs/ 
  - https://github.com/aws/aws-sdk-js
