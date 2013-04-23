@@ -72,7 +72,7 @@ function get_instance_details(i,cb) {
 
 var wait = 2000; // milliseconds
 // wait until instance id is in state state
-function untilInstanceState(id,state,done){
+function until_instance_state(id,state,done){
     var recursive = function () {
         console.log("... waiting for " + state);
         get_instance_details(id, function(d) {
@@ -190,7 +190,7 @@ function start(s,f) {
 	ec2.startInstances({InstanceIds:[iid]}, function(err,data) {
 		if (err) { console.log( 'startInstances error: ' + err ); f(err); }
 		// wait 
-		untilInstanceState( iid, 'running', function(e,d) {
+		until_instance_state( iid, 'running', function(e,d) {
 			s();
 		})
 	});
@@ -209,7 +209,7 @@ function stop(s,f) {
 	ec2.stopInstances({InstanceIds:[iid]}, function(err,data) {
 		if (err) { console.log( 'stopInstances error: ' + err ); f(err); }
 		// wait 
-		untilInstanceState( iid, 'stopped', function(e,d) {
+		until_instance_state( iid, 'stopped', function(e,d) {
 			s();
 		})
 	});
