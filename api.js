@@ -308,4 +308,5 @@ function aws( selector ) {
 
 // export aws function
 exports.aws = aws;
-exports.get_volume_details = get_volume_details;
+exports.get_volume_details   = get_volume_details;
+exports.get_instance_details = get_instance_details;
