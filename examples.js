@@ -1,16 +1,18 @@
-var aws = require('./api.js').aws;
+var aws = require('./api.js')
+//	.aws_debug;
+	.aws;
 
-aws('i-f6______')
+aws('i-c7e62faa')
   .start()
-  .then(function(s,f){
-	console.log('started');
-	s();
-  })
+  .then(function(s,f){ console.log('started'); s(); })
+  .attach( {volume: 'vol-02dba55b', device: '/dev/sdg'} )
+  .then(function(s,f){	console.log('attached a volume'); s(); })
   .stop()
-  .then(function(s,f){
+/*  .then(function(s,f){
 	console.log('stopped');
 	s();
   })
+*/
   .then(function(s,f){
 	console.log('all done');
 	s();

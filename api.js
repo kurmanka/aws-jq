@@ -104,13 +104,14 @@ function until_volume_state(id,state,done){
 }
 
 // wait until volume id is in attachment with state state
-function until_volume_attachement_state(id,state,done){
+function until_volume_attachment_state(id,state,done){
     var recursive = function () {
         console.log("... waiting for " + state);
         get_volume_details(id, function(d) {
-        	console.log( d.Attachement );
-            if(d.Attachement &&
-               d.Attachement[0].State==state) {
+        	if( d && d.Attachments ) { console.log( d.Attachments[0].State ); }
+
+            if( d && d.Attachments 
+                && d.Attachments[0].State==state ) {
                 done(null,d);
             } else {
                 setTimeout(recursive,wait);
@@ -167,9 +168,9 @@ function attach(params,s,f) {
 			ec2.attachVolume({InstanceId:inst, VolumeId:vol, Device:device}, function(err,data) {
 				if (err) { console.log( 'attachVolume error: ' + err ); f(err); }
 				// wait 
-				until_volume_attachement_state( vol, 'attached', function(e,d) { s(); }) // could be more cautious XXX
+				until_volume_attachment_state( vol, 'attached', function(e,d) { s(); }) // could be more cautious XXX
 			});
-			console.log( '(): attachVolume() request sent' );
+			console.log( 'attachVolume() request sent' );
 		}
 	], function (err,d) {
 		console.log( 'failed waterfall', err );
