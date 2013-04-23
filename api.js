@@ -223,7 +223,11 @@ function _start() {
 function _stop() {
 	return this.then( stop );
 }
-function _attach(p){
+function _attach(p,dev){
+	if (typeof p == 'string' 
+		&& dev) { 
+		p = {volume: p, device: dev};
+	}
 	return this.then( attach, p );
 }
 
