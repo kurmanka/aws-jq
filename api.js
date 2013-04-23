@@ -1,8 +1,10 @@
-
-// an experimental jquery-like library-wrapper
+// Prototype of a jQuery-style API to AWS.
+// 
+// an experimental, prototype jquery-like library-wrapper
 // around AWS SDK for node.js
-// http://aws.amazon.com/sdkfornodejs/ 
-// https://github.com/aws/aws-sdk-js
+//
+//   http://aws.amazon.com/sdkfornodejs/ 
+//   https://github.com/aws/aws-sdk-js
 // (c) 2013-04-20, Ivan Kurmanov
 
 var AWS = require('aws-sdk');
@@ -122,6 +124,7 @@ function until_volume_attachment_state(id,state,done){
 }
 
 
+// attach an EBS volume to an EC2 instance
 function attach(params,s,f) {
 	//	console.log( 'attach(): start' );
 	if (!this._) {
@@ -178,6 +181,7 @@ function attach(params,s,f) {
 	});
 }
 
+// start an EC2 instance (assuming to be a stopped instance)
 function start(s,f) {
 //	console.log( 'start(): start' );
 	if (!this._) {
@@ -197,6 +201,7 @@ function start(s,f) {
 	console.log( 'start(): startInstances() request sent' );
 }
 
+// stop an EC2 instance
 function stop(s,f) {
 //	console.log( 'stop(): start' );
 	if (!this._) {
@@ -216,6 +221,9 @@ function stop(s,f) {
 	console.log( 'stop(): stopInstances() request sent' );
 }
 
+// these are the methods that don't do much, but queue
+// the actual actions within `this`
+
 function _start() {
 	return this.then( start );
 }
@@ -232,7 +240,8 @@ function _attach(p,dev){
 }
 
 
-// run the queue-loop of actions
+// run the queue-loop of actions. recursive.
+// tricky.
 function _exec(s,f) {
 	// short-circuit if the loop is already running
 	if( this._exec_running ) { return this; }
@@ -280,6 +289,8 @@ function _then() {
 	return this.exec();
 }
 
+
+// the API-root function, the constructor of the aws magic object.
 function aws( selector ) {
 	var o = {
 		start: _start,
