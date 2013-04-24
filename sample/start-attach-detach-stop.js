@@ -1,5 +1,4 @@
-var aws = require('./api.js')
-	.aws;
+var aws = require('../api.js').aws;
 
 aws('i-c7e62faa')
   .start()
@@ -9,26 +8,8 @@ aws('i-c7e62faa')
   .then(function(s,f){	console.log('attached a volume'); s(); })
   .detach( 'vol-02dba55b' )
   .stop()
-/*  .then(function(s,f){
-	console.log('stopped');
-	s();
-  })
-*/
   .then(function(s,f){
-	console.log('all done');
-	s();
+	  console.log('all done');
   })
 ;
 
-
-/*
-.then(function(s,f){
-	console.log('started, now going to stop');
-	s();
-}).stop().exec(function(){
-	console.log('success!');
-},function(){
-	console.log('failed!');
-})
-
-*/
