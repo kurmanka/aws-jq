@@ -7,6 +7,7 @@ aws('i-c7e62faa')
 //  .attach( {volume: 'vol-02dba55b', device: '/dev/sdg'} )
   .attach( 'vol-02dba55b', '/dev/sdg' )
   .then(function(s,f){	console.log('attached a volume'); s(); })
+  .detach( 'vol-02dba55b' )
   .stop()
 /*  .then(function(s,f){
 	console.log('stopped');
@@ -18,6 +19,7 @@ aws('i-c7e62faa')
 	s();
   })
 ;
+
 
 /*
 .then(function(s,f){

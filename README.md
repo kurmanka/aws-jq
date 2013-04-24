@@ -15,7 +15,7 @@ aws('i-12345678').start();
 ```
 
 ```javascript
-aws('i-12345678').attach({volume:'vol-45671234',device:'/dev/sdd'});
+aws('i-12345678').attach( 'vol-45671234', '/dev/sdd' );
 ```
 
 But also to be able to chain the actions, and mix them with your own code.
@@ -23,13 +23,14 @@ But also to be able to chain the actions, and mix them with your own code.
 ```javascript
 aws('i-12345678')
   .start()
-  .attach({volume:'vol-45671234',device:'/dev/sdd'})
+  .attach( 'vol-45671234', '/dev/sdd' )
   .then(function(s,f){
 	  console.log('started & drive attached');
-  	// do stuff
-  	// ...
+    // do stuff
+    // ...
 	  s(); 
   })
+  .detach( 'vol-45671234' )
   .stop()
   .then(function(s,f){
 	  console.log('stopped');
