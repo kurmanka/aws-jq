@@ -12,10 +12,9 @@ AWS.config.update({region: 'us-east-1'});
 var ec2 = new AWS.EC2;
 var async = require('async');
 
-function select(s) {
-	// this could and should verify the selector string,
-	// parse it and identify the object type and the object's id
-}
+	
+// this checks the selector string, parses it
+// and identifies the object type and the object's id
 
 function parse_selector (s) {
 	var r = { type: null, id: null }; // return structure
@@ -171,7 +170,10 @@ function attach(params,s,f) {
 			ec2.attachVolume({InstanceId:inst, VolumeId:vol, Device:device}, function(err,data) {
 				if (err) { console.log( 'attachVolume error: ' + err ); f(err); }
 				// wait 
-				until_volume_attachment_state( vol, 'attached', function(e,d) { s(); }) // could be more cautious XXX
+				until_volume_attachment_state( vol, 'attached',
+					 // could be more cautious here XXX 
+					function(e,d) { s(); }
+				);
 			});
 			console.log( 'attachVolume() request sent' );
 		}
@@ -180,6 +182,40 @@ function attach(params,s,f) {
 		if(err) { f(err); }
 	});
 }
+
+// detach an EBS volume from an ec2 instance
+function detach(params,s,f) {
+	// stub
+	var vol = params.volume;
+	console.log( 'asked to detach ' + vol );
+
+	async.waterfall( [
+		function (done) {
+			// check that the volume is in state 'available'
+			var volume = get_volume_details( vol, function(d) {
+				if (!d) { return done( 'volume is not known: ' + vol); }
+				if (d.State=='in-use') {
+					done(null);
+				} else {
+					done('volume is not attached: ' + d.State);
+				}
+			});
+		},
+		function (done) {
+			ec2.detachVolume({VolumeId:vol}, function(err,data) {
+				if (err) { console.log( 'detachVolume error: ' + err ); f(err); }
+				// wait 
+				// could be more cautious XXX
+				until_volume_state( vol, 'available', function(e,d) { s(); }) 
+			});
+			console.log( 'detachVolume() request sent' );
+		}
+	], function (err,d) {
+		console.log( 'failed waterfall', err );
+		if(err) { f(err); }
+	});
+}
+
 
 // start an EC2 instance (assuming to be a stopped instance)
 function start(s,f) {
@@ -231,6 +267,7 @@ function _start() {
 function _stop() {
 	return this.then( stop );
 }
+
 function _attach(p,dev){
 	if (typeof p == 'string' 
 		&& dev) { 
@@ -239,6 +276,16 @@ function _attach(p,dev){
 	return this.then( attach, p );
 }
 
+function _detach(p){
+	var i = parse_selector(p || this._);
+	if (i && i.type == 'volume') {
+		this.then( detach, {volume: i.id} )		
+	} else {
+		console.log( 'Aaaaaaa! detach what?!' );
+	}
+
+	return this;
+}
 
 // run the queue-loop of actions. recursive.
 // tricky.
@@ -298,6 +345,7 @@ function aws( selector ) {
 		exec:  _exec,
 		then:  _then,
 		attach: _attach,
+		detach: _detach,
 		_: selector,
 		_q: [],
 		_p: []
