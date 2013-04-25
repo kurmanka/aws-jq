@@ -87,7 +87,7 @@ function instance_info_get(id,args,s,f) {
   			//console.log( 'param['+i+']: ', key, ' = ', data[key]);
   			values[i] = data[key];
 		}
-		console.log('values: ', values);
+//		console.log('values: ', values);
 		values.push(s);
 		cb.apply(this,values);
 	});
@@ -109,7 +109,7 @@ function volume_info_get(id,args,s,f){
   			//console.log( 'param['+i+']: ', key, ' = ', data[key]);
   			values[i] = data[key];
 		}
-		console.log('values: ', values);
+//		console.log('values: ', values);
 		values.push(s);
 		cb.apply(this,values);
 	});
