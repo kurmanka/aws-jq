@@ -71,6 +71,51 @@ function get_instance_details(i,cb) {
     request.send();
 }
 
+function instance_info_get(id,args,s,f) {
+//	console.log( 'id: ', id)
+	var params = Array.prototype.slice.apply(args);
+	console.log(params);
+	var cb = params.pop();
+
+	get_instance_details(id,function(data) {
+		if(!data) {return f();}
+
+//		console.log(data);
+		var values = [];
+		for (var i = 0; i < params.length; i++) {
+  			var key = params[i];
+  			//console.log( 'param['+i+']: ', key, ' = ', data[key]);
+  			values[i] = data[key];
+		}
+		console.log('values: ', values);
+		values.push(s);
+		cb.apply(this,values);
+	});
+}
+
+function volume_info_get(id,args,s,f){
+//	console.log( 'id: ', id)
+	var params = Array.prototype.slice.apply(args);
+//	console.log(params);
+	var cb = params.pop();
+
+	get_volume_details(id,function(data) {
+		if(!data) {return f();}
+
+//		console.log(data);
+		var values = [];
+		for (var i = 0; i < params.length; i++) {
+  			var key = params[i];
+  			//console.log( 'param['+i+']: ', key, ' = ', data[key]);
+  			values[i] = data[key];
+		}
+		console.log('values: ', values);
+		values.push(s);
+		cb.apply(this,values);
+	});
+
+};
+
 var wait = 2000; // milliseconds
 // wait until instance id is in state state
 function until_instance_state(id,state,done){
@@ -287,6 +332,24 @@ function _detach(p){
 	return this;
 }
 
+function _get() {
+	var i = parse_selector(this._);
+
+	if (i && i.type == 'instance') {
+		return this.then( instance_info_get, i.id, arguments );
+	}
+
+	if (i && i.type == 'volume') {
+		return this.then( volume_info_get, i.id, arguments );
+	} 
+
+//	if (!i || !i.type) {
+		console.log( 'Aaaaaaa! get() what?!' );
+//	}
+
+	return this;
+}
+
 // run the queue-loop of actions. recursive.
 // tricky.
 function _exec(s,f) {
@@ -346,6 +409,7 @@ function aws( selector ) {
 		then:  _then,
 		attach: _attach,
 		detach: _detach,
+		get:   _get,
 		_: selector,
 		_q: [],
 		_p: []
