@@ -23,6 +23,11 @@ But also to be able to chain the actions, and mix them with your own code.
 ```javascript
 aws('i-12345678')
   .start()
+  .get('PublicIpAddress','PrivateIpAddress', function(ip,privateip,done) {
+    console.log('ip: ', ip);
+    console.log('private ip: ', ip);
+    done();
+  })
   .attach( 'vol-45671234', '/dev/sdd' )
   .then(function(s,f){
 	  console.log('started & drive attached');
