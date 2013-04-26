@@ -8,6 +8,6 @@ aws('vol-02dba55b')
     next();
   })
   .then(function(){
-	console.log('all done');
+    console.log('- all done');
   })
 ;
