@@ -12,7 +12,6 @@ AWS.config.update({region: 'us-east-1'});
 var ec2 = new AWS.EC2;
 var async = require('async');
 
-	
 // this checks the selector string, parses it
 // and identifies the object type and the object's id
 
@@ -38,37 +37,37 @@ function parse_selector (s) {
 }
 
 function get_volume_details(v,cb) {
-    var request = ec2.describeVolumes( { VolumeIds: [v] } );
-    request.on('success', function(response) {
+	var request = ec2.describeVolumes( { VolumeIds: [v] } );
+	request.on('success', function(response) {
 	//	console.log('get_volume_details: success');
-        var details = response.data.Volumes[0];
-        cb(details);
-    });
-    request.on('failure', function(response) {
-    	console.log('get_volume_details: failure');
-    });
+		var details = response.data.Volumes[0];
+		cb(details);
+	});
+	request.on('failure', function(response) {
+		console.log('get_volume_details: failure');
+	});
 
-    request.send();
+	request.send();
 }
 
 function get_instance_details(i,cb) {
 //	console.log('get_instance_details('+i+'): start');
-    var request = ec2.describeInstances( { InstanceIds: [i] } );
+	var request = ec2.describeInstances( { InstanceIds: [i] } );
 
-    // register callbacks on request to retrieve response data
-    request.on('success', function(response) {
+	// register callbacks on request to retrieve response data
+	request.on('success', function(response) {
 //		console.log('get_instance_details: success');
-        var details = response.data.Reservations[0].Instances[0];
-        //console.log(details);
-        cb(details);
-    });
+		var details = response.data.Reservations[0].Instances[0];
+		//console.log(details);
+		cb(details);
+	});
 
-    // register callbacks on request to retrieve response data
-    request.on('failure', function(response) {
+	// register callbacks on request to retrieve response data
+	request.on('failure', function(response) {
 //		console.log('get_instance_details: failure');
-    });
+	});
 
-    request.send();
+	request.send();
 }
 
 function instance_info_get(id,args,s,f) {
@@ -83,9 +82,9 @@ function instance_info_get(id,args,s,f) {
 //		console.log(data);
 		var values = [];
 		for (var i = 0; i < params.length; i++) {
-  			var key = params[i];
-  			//console.log( 'param['+i+']: ', key, ' = ', data[key]);
-  			values[i] = data[key];
+			var key = params[i];
+			//console.log( 'param['+i+']: ', key, ' = ', data[key]);
+			values[i] = data[key];
 		}
 //		console.log('values: ', values);
 		values.push(s);
@@ -105,9 +104,9 @@ function volume_info_get(id,args,s,f){
 //		console.log(data);
 		var values = [];
 		for (var i = 0; i < params.length; i++) {
-  			var key = params[i];
-  			//console.log( 'param['+i+']: ', key, ' = ', data[key]);
-  			values[i] = data[key];
+			var key = params[i];
+			//console.log( 'param['+i+']: ', key, ' = ', data[key]);
+			values[i] = data[key];
 		}
 //		console.log('values: ', values);
 		values.push(s);
@@ -119,52 +118,52 @@ function volume_info_get(id,args,s,f){
 var wait = 2000; // milliseconds
 // wait until instance id is in state state
 function until_instance_state(id,state,done){
-    var recursive = function () {
-        console.log("... waiting for " + state);
-        get_instance_details(id, function(d) {
-        	console.log( d.State.Name );
-            if(d.State.Name==state) {
-                done(null,d);
-            } else {
-                setTimeout(recursive,wait);
-            }
-        });
-    }
-    recursive();
+	var recursive = function () {
+		console.log("... waiting for " + state);
+		get_instance_details(id, function(d) {
+			console.log( d.State.Name );
+			if(d.State.Name==state) {
+				done(null,d);
+			} else {
+				setTimeout(recursive,wait);
+			}
+		});
+	}
+	recursive();
 }
 
 // wait until volume id is in state state
 function until_volume_state(id,state,done){
-    var recursive = function () {
-        console.log("... waiting for " + state);
-        get_volume_details(id, function(d) {
-        	console.log( d.State );
-            if(d.State==state) {
-                done(null,d);
-            } else {
-                setTimeout(recursive,wait);
-            }
-        });
-    }
-    recursive();
+	var recursive = function () {
+		console.log("... waiting for " + state);
+		get_volume_details(id, function(d) {
+			console.log( d.State );
+			if(d.State==state) {
+				done(null,d);
+			} else {
+				setTimeout(recursive,wait);
+			}
+		});
+	}
+	recursive();
 }
 
 // wait until volume id is in attachment with state state
 function until_volume_attachment_state(id,state,done){
-    var recursive = function () {
-        console.log("... waiting for " + state);
-        get_volume_details(id, function(d) {
-        	if( d && d.Attachments ) { console.log( d.Attachments[0].State ); }
+	var recursive = function () {
+		console.log("... waiting for " + state);
+		get_volume_details(id, function(d) {
+			if( d && d.Attachments ) { console.log( d.Attachments[0].State ); }
 
-            if( d && d.Attachments 
-                && d.Attachments[0].State==state ) {
-                done(null,d);
-            } else {
-                setTimeout(recursive,wait);
-            }
-        });
-    }
-    recursive();
+			if( d && d.Attachments 
+				&& d.Attachments[0].State==state ) {
+				done(null,d);
+			} else {
+				setTimeout(recursive,wait);
+			}
+		});
+	}
+	recursive();
 }
 
 
@@ -216,7 +215,7 @@ function attach(params,s,f) {
 				if (err) { console.log( 'attachVolume error: ' + err ); f(err); }
 				// wait 
 				until_volume_attachment_state( vol, 'attached',
-					 // could be more cautious here XXX 
+					// could be more cautious here XXX 
 					function(e,d) { s(); }
 				);
 			});
