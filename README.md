@@ -17,6 +17,11 @@ Chaining callbacks uses some ideas from https://github.com/kriskowal/q
 The idea is to be able to do something like this:
 
 ```javascript
+var aws = require('aws-jq/api.js').aws;
+
+// setup AWS config
+aws({region: 'us-east-1'});
+
 // start an instance
 aws('i-12345678').start();
 
