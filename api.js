@@ -405,9 +405,13 @@ function aws( selector ) {
 	if(typeof(selector)=='object') {
 		// selector — configuration object, for AWS.Config
 		_init(selector);
-		return null;
+		return AWS.config;
 	}
 
+	if(!ec2) {
+		ec2 = new AWS.EC2;
+	}
+	
 	var o = {
 		start: _start,
 		stop:  _stop,
@@ -428,7 +432,6 @@ function _init( config ) {
 	if (config) {
 		AWS.config.update(config);
 	}
-	ec2 = new AWS.EC2;
 }
 
 // export aws function
