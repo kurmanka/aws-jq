@@ -1,5 +1,7 @@
 var aws = require('../api.js').aws;
 
+aws({region: 'us-east-1'});
+
 aws('vol-02dba55b')
   .get('Size', 'AvailabilityZone', 'State', function(size,az,state,next) {
     console.log('size:',  size);

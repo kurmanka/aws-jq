@@ -1,5 +1,7 @@
 var aws = require('../api.js').aws;
 
+aws({region: 'us-east-1'});
+
 aws('i-c7e62faa')
   .start()
   .get('PublicIpAddress','PrivateIpAddress', function(ip,privateip,next) {

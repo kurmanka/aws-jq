@@ -8,8 +8,7 @@
 // (c) 2013-04-20, Ivan Kurmanov
 
 var AWS = require('aws-sdk');
-AWS.config.update({region: 'us-east-1'});
-var ec2 = new AWS.EC2;
+var ec2; 
 var async = require('async');
 
 // this checks the selector string, parses it
@@ -402,20 +401,34 @@ function _then() {
 
 // the API-root function, the constructor of the aws magic object.
 function aws( selector ) {
+
+	if(typeof(selector)=='object') {
+		// selector — configuration object, for AWS.Config
+		_init(selector);
+		return null;
+	}
+
 	var o = {
 		start: _start,
 		stop:  _stop,
-		exec:  _exec,
-		then:  _then,
 		attach: _attach,
 		detach: _detach,
 		get:   _get,
+		exec:  _exec,
+		then:  _then,
 		_: selector,
 		_q: [],
 		_p: []
 	};
 
 	return o;
+}
+
+function _init( config ) {
+	if (config) {
+		AWS.config.update(config);
+	}
+	ec2 = new AWS.EC2;
 }
 
 // export aws function
