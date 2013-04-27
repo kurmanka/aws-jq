@@ -43,8 +43,9 @@ function get_volume_details(v,cb) {
 		var details = response.data.Volumes[0];
 		cb(details);
 	});
-	request.on('failure', function(response) {
-		console.log('get_volume_details: failure');
+	request.on('error', function(response) {
+		console.log('get_volume_details: error');
+		cb(null);
 	});
 
 	request.send();
@@ -63,8 +64,8 @@ function get_instance_details(i,cb) {
 	});
 
 	// register callbacks on request to retrieve response data
-	request.on('failure', function(response) {
-//		console.log('get_instance_details: failure');
+	request.on('error', function(response) {
+//		console.log('get_instance_details: error');
 	});
 
 	request.send();
@@ -371,7 +372,7 @@ function _exec(s,f) {
 				function(err){ // failure
 					self._exec_running = false;
 					console.log('err: ', err )
-					f();
+					if(f) {f()};
 				}
 	);	
 
@@ -386,7 +387,7 @@ function _exec(s,f) {
 		// for example, the s() success handler could have added 
 		// another item, but it wouldn't run immediately, 
 		// since the _exec_running was true.
-		if (this._q.length) {return this._exec();}
+		if (this._q.length) {return this._exec(s,f);}
 	}
 	return this;
 }
