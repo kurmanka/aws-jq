@@ -7,14 +7,6 @@ library wrapper around the AWS SDK for node.js:
  - https://github.com/aws/aws-sdk-js
  - http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/frames.html
 
-The API is inspired by jQuery (https://github.com/jquery/jquery), 
-and here is some theoretical context:
- - http://en.wikipedia.org/wiki/Method_chaining
- - http://en.wikipedia.org/wiki/Fluent_interface
- - http://en.wikipedia.org/wiki/Command-query_separation
-
-Chaining callbacks uses some ideas from https://github.com/kriskowal/q
-
 The idea is to be able to do something like this:
 
 ```javascript
@@ -74,6 +66,17 @@ aws('i-12345678')
   })
 ;
 ```
+
+Background
+==========
+
+The API is inspired by jQuery (https://github.com/jquery/jquery), 
+and here is some background theory:
+ - http://en.wikipedia.org/wiki/Method_chaining
+ - http://en.wikipedia.org/wiki/Fluent_interface
+ - http://en.wikipedia.org/wiki/Command-query_separation
+
+Chaining callbacks uses some ideas from https://github.com/kriskowal/q
 
 
 License
