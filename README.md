@@ -5,6 +5,7 @@ This is a prototype-stage (i.e. very early) experimental jquery-like
 library wrapper around the AWS SDK for node.js:
  - http://aws.amazon.com/sdkfornodejs/ 
  - https://github.com/aws/aws-sdk-js
+ - http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/frames.html
 
 The API is inspired by jQuery (https://github.com/jquery/jquery), 
 and here is some theoretical context:
