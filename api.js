@@ -411,7 +411,7 @@ function aws( selector ) {
 	if(!ec2) {
 		ec2 = new AWS.EC2;
 	}
-	
+
 	var o = {
 		start: _start,
 		stop:  _stop,
@@ -430,6 +430,7 @@ function aws( selector ) {
 
 function _init( config ) {
 	if (config) {
+		// http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/Config.html
 		AWS.config.update(config);
 	}
 }
