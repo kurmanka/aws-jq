@@ -1,0 +1,11 @@
+{
+	"name":        "aws-jq",
+	"version":     "0.1",
+	"description": "A jQuery-style wrapper library around AWS SDK for node.js.",
+	"homepage":    "http://github.com/kurmanka/aws-jq",
+	"main":	       "api.js",
+	"dependencies": {
+		"async": "*"
+	},
+	"engines": { "node": "*" }
+}
