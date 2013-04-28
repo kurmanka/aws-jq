@@ -3,6 +3,7 @@
 	"version":     "0.1",
 	"description": "A jQuery-style wrapper library around AWS SDK for node.js.",
 	"homepage":    "http://github.com/kurmanka/aws-jq",
+	"author":      "Ivan Kurmanov <duraley@gmail.com> (http://ahinea.com/en/)",
 	"main":	       "api.js",
 	"dependencies": {
 		"async": "*"
