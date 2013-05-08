@@ -32,26 +32,27 @@ THE SOFTWARE.
 
 
 var AWS = require('aws-sdk');
+var EC2;
 var async = require('async');
 
 var jq = require( './lib/jq.js'  );
 jq.ec2 = require( './lib/ec2.js' );
 
-var ec2;
+var o = {}; // object for methods, the prototype
 
 
 // these are the methods that don't do much, but queue
-// the actual actions within `this`
+// the actual actions to be executed within `this`
 
-function _start() {
+o.start = function () {
 	return this.then( jq.ec2.start );
 }
 
-function _stop() {
+o.stop = function () {
 	return this.then( jq.ec2.stop );
 }
 
-function _attach(p,dev){
+o.attach = function (p,dev) {
 	if (typeof p == 'string' 
 		&& dev) { 
 		p = {volume: p, device: dev};
@@ -59,7 +60,7 @@ function _attach(p,dev){
 	return this.then( jq.ec2.attach, p );
 }
 
-function _detach(p){
+o.detach = function (p) {
 	var i = jq.parse_selector(p || this._);
 	if (i && i.type == 'volume') {
 		this.then( jq.ec2.detach, {volume: i.id} )		
@@ -70,7 +71,7 @@ function _detach(p){
 	return this;
 }
 
-function _get() {
+o.get = function () {
 	var i = jq.parse_selector(this._);
 
 	if (i && i.type == 'instance') {
@@ -81,16 +82,18 @@ function _get() {
 		return this.then( jq.ec2.volume_info_get, i.id, arguments );
 	} 
 
+	// XXX Error. Unsupported instruction.
 //	if (!i || !i.type) {
-		console.log( 'Aaaaaaa! get() what?!' );
+	console.log( 'Aaaaaaa! get() what?!' );
 //	}
 
 	return this;
 }
 
 // run the queue-loop of actions. recursive.
-// tricky.
-function _exec(s,f) {
+// tricky. this is what makes the method chaining work.
+
+o.exec = function (s,f) {
 	// short-circuit if the loop is already running
 	if( this._exec_running ) { return this; }
 	// get next action
@@ -125,12 +128,14 @@ function _exec(s,f) {
 		// for example, the s() success handler could have added 
 		// another item, but it wouldn't run immediately, 
 		// since the _exec_running was true.
-		if (this._q.length) {return this._exec(s,f);}
+		if (this._q.length) {return this.exec(s,f);}
 	}
 	return this;
 }
 
-function _then() {
+// then (fn, arg1, arg2, ...)
+// - an interface to method chain, and the action queue
+o.then = function () {
 	var arg = Array.prototype.slice.apply(arguments);
 	this._q.unshift(arg.shift()); // function to call
 	this._p.unshift(arg);         // arguments, if any
@@ -138,34 +143,30 @@ function _then() {
 }
 
 
-// the API-root function, the constructor of the aws magic object.
+// the constructor
+function make(s) {
+	this._  = s;
+	this._q = [];
+	this._p = [];
+	return this;
+};
+
+make.prototype = o;
+
 function aws( selector ) {
 
 	if(typeof(selector)=='object') {
-		// selector — configuration object, for AWS.Config
+		// here selector is a configuration object, for AWS.Config
 		_init(selector);
 		return AWS.config;
 	}
 
-	if(!ec2) {
-		ec2 = new AWS.EC2;
-		jq.ec2.setup( {}, ec2 );
+	if(!EC2) {
+		EC2 = new AWS.EC2;
+		jq.ec2.setup( {}, EC2 );
 	}
 
-	var o = {
-		start: _start,
-		stop:  _stop,
-		attach: _attach,
-		detach: _detach,
-		get:   _get,
-		exec:  _exec,
-		then:  _then,
-		_: selector,
-		_q: [],
-		_p: []
-	};
-
-	return o;
+	return new make(selector);
 }
 
 function _init( config ) {
@@ -177,5 +178,4 @@ function _init( config ) {
 
 // export aws function
 exports.aws = aws;
-exports.get_volume_details   = jq.ec2.get_volume_details;
-exports.get_instance_details = jq.ec2.get_instance_details;
+exports.ec2 = jq.ec2;
