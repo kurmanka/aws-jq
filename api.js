@@ -34,61 +34,21 @@ THE SOFTWARE.
 var AWS = require('aws-sdk');
 var async = require('async');
 
-var jq = require( './lib/jq.js' );
-jq.ec2 = require('./lib/ec2.js');
+var jq = require( './lib/jq.js'  );
+jq.ec2 = require( './lib/ec2.js' );
 
 var ec2;
 
-
-// start an EC2 instance (assuming to be a stopped instance)
-function start(s,f) {
-//	console.log( 'start(): start' );
-	if (!this._) {
-		// no object to do start on
-		f('no object to run on');
-	};
-	// XXX check that this._ points to an instance
-	// ... selector( this._ );
-	var iid = this._;
-	ec2.startInstances({InstanceIds:[iid]}, function(err,data) {
-		if (err) { console.log( 'startInstances error: ' + err ); f(err); }
-		// wait 
-		jq.ec2.until_instance_state( iid, 'running', function(e,d) {
-			s();
-		})
-	});
-	console.log( 'start(): startInstances() request sent' );
-}
-
-// stop an EC2 instance
-function stop(s,f) {
-//	console.log( 'stop(): start' );
-	if (!this._) {
-		// no object to do start on
-		f('no object to run on');
-	};
-	// XXX check that this._ points to an instance
-	// 
-	var iid = this._;
-	ec2.stopInstances({InstanceIds:[iid]}, function(err,data) {
-		if (err) { console.log( 'stopInstances error: ' + err ); f(err); }
-		// wait 
-		jq.ec2.until_instance_state( iid, 'stopped', function(e,d) {
-			s();
-		})
-	});
-	console.log( 'stop(): stopInstances() request sent' );
-}
 
 // these are the methods that don't do much, but queue
 // the actual actions within `this`
 
 function _start() {
-	return this.then( start );
+	return this.then( jq.ec2.start );
 }
 
 function _stop() {
-	return this.then( stop );
+	return this.then( jq.ec2.stop );
 }
 
 function _attach(p,dev){
