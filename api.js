@@ -61,7 +61,7 @@ o.attach = function (p,dev) {
 }
 
 o.detach = function (p) {
-	var i = jq.parse_selector(p || this._);
+	var i = jq.parse_selector(p || this._select);
 	if (i && i.type == 'volume') {
 		this.then( jq.ec2.detach, {volume: i.id} )		
 	} else {
@@ -72,7 +72,7 @@ o.detach = function (p) {
 }
 
 o.get = function () {
-	var i = jq.parse_selector(this._);
+	var i = jq.parse_selector(this._select);
 
 	if (i && i.type == 'instance') {
 		return this.then( jq.ec2.instance_info_get, i.id, arguments );
@@ -97,15 +97,17 @@ o.exec = function (s,f) {
 	// short-circuit if the loop is already running
 	if( this._exec_running ) { return this; }
 	// get next action
-	var op  = this._q.pop();
-	var par = this._p.pop();
+	var action = this._queue.pop();
+	var params = this._params.pop();
 	// save this for future use
 	var self = this;
 	// raise the semaphor
 	this._exec_running = true;
 
-	var arg = par || [];
-	arg.push(
+	// arguments that would be passed to the action function
+	var args = params || [];
+	// add the success and failure handlers to the arguments
+	args.push(
 				function(){ // success
 					self._exec_running = false;
 					self.exec(s,f);
@@ -118,17 +120,17 @@ o.exec = function (s,f) {
 	);	
 
 	// next action is defined?
-	if( op ) {
-		op.apply(this, arg);
+	if( action ) {
+		action.apply(this, args);
 	} else {
 		if(s) {s();}
 		this._exec_running = false;
 
-		// I think I should check for another item in _q here. 
+		// I think I should check for another item in _queue here. 
 		// for example, the s() success handler could have added 
 		// another item, but it wouldn't run immediately, 
 		// since the _exec_running was true.
-		if (this._q.length) {return this.exec(s,f);}
+		if (this._queue.length) {return this.exec(s,f);}
 	}
 	return this;
 }
@@ -137,17 +139,25 @@ o.exec = function (s,f) {
 // - an interface to method chain, and the action queue
 o.then = function () {
 	var arg = Array.prototype.slice.apply(arguments);
-	this._q.unshift(arg.shift()); // function to call
-	this._p.unshift(arg);         // arguments, if any
+	this._queue.unshift(arg.shift()); // function to call
+	this._params.unshift(arg);         // arguments, if any
 	return this.exec();
 }
 
 
 // the constructor
 function make(s) {
-	this._  = s;
-	this._q = [];
-	this._p = [];
+	this._select = s;
+	//this._item   = null;
+	this._queue  = [];
+	this._params = [];
+
+	if (this._select) {
+		this._item = jq.parse_selector( this._select );
+	} else {
+		this._item = null;
+	}
+
 	return this;
 };
 
