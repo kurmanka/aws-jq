@@ -2,5 +2,5 @@
 for file in test/*
 do
   echo \> $file
-  echo node $file
+  node $file
 done
