@@ -108,14 +108,14 @@ o.exec = function (s,f) {
 	var args = params || [];
 	// add the success and failure handlers to the arguments
 	args.push(
-				function(){ // success
+				function() { // success
 					self._exec_running = false;
 					self.exec(s,f);
 				},
-				function(err){ // failure
+				function(err) { // failure
 					self._exec_running = false;
 					console.log('err: ', err )
-					if(f) {f()};
+					if(f) { f(err); }
 				}
 	);	
 
