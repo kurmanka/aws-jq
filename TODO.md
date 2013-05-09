@@ -3,11 +3,32 @@ TO DO
 
 - Associating elastic IP addresses to instances and releasing them
 
+	aws('i-12563478')
+		.associate( '200.100.150.50' )
+		.then(function() { console.log( 'all done' ); });
+
 - Creating new EBS volumes (from scratch and from snapshots)
+
+	aws('ebs')
+		.create({size:10,az:'us-east-1e'})
+		.attach({instance:'',device:'/dev/sdf'})
+		.then(function() { console.log( 'all done' ); });
 
 - Snapshotting existing EBS volumes
 
+	aws('vol-23674518').snapshot();
+	// or .snap();
+
 - Creating (launching) new EC2 instances
+
+	aws('ec2')
+		.launch({ami: ..., class:..., secgroup: [...], ...})
+		.get('InstanceId', 'PublicIpAddress', 'PrivateIpAddress', 
+		function (iid, ip, privateip, next) {
+    		console.log( 'instance id:', iid );
+    		console.log( 'public ip:',   ip );
+    		console.log( 'private ip:',  privateip );
+		);
 
 - Selecting instances and volumes via indirect selector expressions (non-id selectors). E.g. 
   "ec2#t" — by the Name tag, "ec2:latest", "ebs:latest" — by the entity creation datetime, 
