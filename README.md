@@ -67,6 +67,22 @@ aws('i-12345678')
 ;
 ```
 
+AWS operations support status
+=============================
+
+Done:
+
+- EC2 instances: starting and stopping.
+- EBS volumes: attaching and detaching.
+- Elastic IP addresses: associating and disassociating.
+
+Near-term to do:
+
+- EC2 instance launching and terminating
+- EBS volume creating and destroying
+- EBS volume snapshots: creating, restoring, destroying
+
+
 Background
 ==========
 
