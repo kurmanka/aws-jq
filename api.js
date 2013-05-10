@@ -76,6 +76,10 @@ o.associate = function (p) {
 	return this.then( jq.ec2.associate, p );
 }
 
+o.disassociate = function (p) {
+	return this.then( jq.ec2.disassociate, p );
+}
+
 o.get = function () {
 	var i = this._item;
 

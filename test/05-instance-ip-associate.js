@@ -8,9 +8,13 @@ aws({region: 'us-east-1'});
 aws('i-c7e62faa')
   .start()
   .associate( '50.17.226.188' )
-  .get('PublicIpAddress','PrivateIpAddress', function(ip,privateip,next) {
+  .get('PublicIpAddress', function(ip,next) {
     console.log('public ip:', ip);
-    console.log('private ip:', privateip);
+    next();
+  })
+  .disassociate( '50.17.226.188' )
+  .get('PublicIpAddress', function(ip,next) {
+    console.log('public ip:', ip);
     next();
   })
   .stop()
