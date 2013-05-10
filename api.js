@@ -96,42 +96,49 @@ o.get = function () {
 o.exec = function (s,f) {
 	// short-circuit if the loop is already running
 	if( this._exec_running ) { return this; }
+
 	// get next action
 	var action = this._queue.pop();
 	var params = this._params.pop();
-	// save this for future use
-	var self = this;
-	// raise the semaphor
-	this._exec_running = true;
-
-	// arguments that would be passed to the action function
-	var args = params || [];
-	// add the success and failure handlers to the arguments
-	args.push(
-				function() { // success
-					self._exec_running = false;
-					self.exec(s,f);
-				},
-				function(err) { // failure
-					self._exec_running = false;
-					console.log('err: ', err )
-					if(f) { f(err); }
-				}
-	);	
 
 	// next action is defined?
 	if( action ) {
+
+		// raise the semaphor
+		this._exec_running = true;
+		// save this for future use
+		var self = this;
+		// arguments that would be passed to the action function
+		var args = params || [];
+		// add the success and failure handlers to the arguments
+		args.push(
+			function() { // success
+				self._exec_running = false;
+				self.exec(s,f);
+			},
+			function(err) { // failure
+				self._exec_running = false;
+				console.log('err: ', err )
+				if(f) { f(err); }
+			}
+		);
+
+		// execute the action
 		action.apply(this, args);
+
 	} else {
+
 		if(s) {s();}
 		this._exec_running = false;
 
 		// I think I should check for another item in _queue here. 
 		// for example, the s() success handler could have added 
 		// another item, but it wouldn't run immediately, 
-		// since the _exec_running was true.
+		// since the _exec_running was true. Even though I doubt
+		// this is useful.
 		if (this._queue.length) {return this.exec(s,f);}
 	}
+
 	return this;
 }
 
