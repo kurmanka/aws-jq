@@ -72,9 +72,9 @@ AWS operations support status
 
 Done:
 
-- EC2 instances: starting and stopping.
-- EBS volumes: attaching and detaching.
-- Elastic IP addresses: associating and disassociating.
+- EC2 instances: starting and stopping
+- EBS volumes: attaching and detaching
+- Elastic IP addresses: associating and disassociating
 
 Near-term to do:
 
