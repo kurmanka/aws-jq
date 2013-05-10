@@ -38,7 +38,7 @@ var async = require('async');
 var jq = require( './lib/jq.js'  );
 jq.ec2 = require( './lib/ec2.js' );
 
-var o = {}; // object for methods, the prototype
+var o = {}; // container object for methods, the prototype
 
 
 // these are the methods that don't do much, but queue
@@ -54,14 +54,15 @@ o.stop = function () {
 
 o.attach = function (p,dev) {
 	if (typeof p == 'string' 
-		&& dev) { 
+		&& dev 
+		&& typeof dev == 'string') { 
 		p = {volume: p, device: dev};
 	}
 	return this.then( jq.ec2.attach, p );
 }
 
 o.detach = function (p) {
-	var i = jq.parse_selector(p || this._select);
+	var i = p ? jq.parse_selector(p) : this._item;
 	if (i && i.type == 'volume') {
 		this.then( jq.ec2.detach, {volume: i.id} )		
 	} else {
@@ -72,7 +73,7 @@ o.detach = function (p) {
 }
 
 o.get = function () {
-	var i = jq.parse_selector(this._select);
+	var i = this._item;
 
 	if (i && i.type == 'instance') {
 		return this.then( jq.ec2.instance_info_get, i.id, arguments );
