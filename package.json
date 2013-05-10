@@ -6,6 +6,7 @@
 	"author":      "Ivan Kurmanov <duraley@gmail.com> (http://ahinea.com/en/)",
 	"main":	       "api.js",
 	"dependencies": {
+		"aws-sdk": "*",
 		"async": "*"
 	},
 	"engines": { "node": "*" }
